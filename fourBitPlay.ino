@@ -1,20 +1,25 @@
 /*
-  SD card basic file example
+Four bit music player by Aleks Zosuls Nov 2014 using code
+ created   Nov 2010
+ by David A. Mellis and
+ modified 9 Apr 2012
+ by Tom Igoe
  
- This example shows how to create and destroy an SD card file   
+ This example code is in the public domain.
+
+ Program reads a binary file from a flash card and plays it out of the
+ lower nibble of port C. Note, these are usually analog input pins <0:4>.
+ A companion file was written in MATLAB that decodes an m4a file and converts it
+ to four bit music. The high nibble is not used
+ 
  The circuit:
  * SD card attached to SPI bus as follows:
  ** MOSI - pin 11
  ** MISO - pin 12
  ** CLK - pin 13
- ** CS - pin 4
+ ** CS - pin 8
  
- created   Nov 2010
- by David A. Mellis
- modified 9 Apr 2012
- by Tom Igoe
- 
- This example code is in the public domain.
+
      
  */
 #include <SD.h>
@@ -35,7 +40,8 @@ void setup()
   // On the Ethernet Shield, CS is pin 4. It's set as an output by default.
   // Note that even if it's not used as the CS pin, the hardware SS pin 
   // (10 on most Arduino boards, 53 on the Mega) must be left as an output 
-  // or the SD library functions will not work. 
+  // or the SD library functions will not work. Aleks used the Sparkfun micro
+  //SD shield which uses pin 8 as CS
   pinMode(8, OUTPUT);
 
   if (!SD.begin(8)) {
@@ -43,31 +49,30 @@ void setup()
     return;
   }
   Serial.println("initialization done.");
-
-  if (SD.exists("alice4.bin")) {
-    Serial.println("alice4.bin exists.");
-    
-  }
-  else {
-    Serial.println("alice3.bin doesn't exist.");
-  }
+ 
 DDRC = DDRC | B00001111;    //set analog pins 0-3 as digital outputs
 
 
 }
 
 void loop()
-
 {
-  byte toPort;
-  File musicfile = SD.open("alice5.bin");
-  while(readStatus != -1){
-   readStatus = musicfile.read();
-   //Serial.println(readStatus);
-   toPort = byte(readStatus);
-   PORTC = B00001111 & toPort;
-  delayMicroseconds(80);  
-  }
-  
-  musicfile.close();
+  //if flie exists run the output loop
+  if (SD.exists("alice4.bin")) {
+    Serial.println("alice4.bin exists."); //tell us it worked
+    byte toPort;
+    File musicfile = SD.open("lana1.bin");  //open music file
+    
+    while(readStatus != -1){  //loop until at end of music file
+     readStatus = musicfile.read();
+     //Serial.println(readStatus);
+     toPort = byte(readStatus);  //cast byte as binary
+     PORTC = B00001111 & toPort; //write lower nibble on portc use mask to protect high nibble
+    delayMicroseconds(80);  //hand adjusted delay that sets sample update rate
+    } //end of read status while loop
+    musicfile.close();  //always close your file io
+    }  //end of if exists block
+  else {  //tell us if the file doesnt exist
+    Serial.println("alice3.bin doesn't exist.");
+    }
 }

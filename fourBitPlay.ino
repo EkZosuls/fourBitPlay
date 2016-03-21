@@ -1,3 +1,5 @@
+
+
 /*
 Four bit music player by Aleks Zosuls Nov 2014 using code
  created   Nov 2010
@@ -23,6 +25,7 @@ Four bit music player by Aleks Zosuls Nov 2014 using code
      
  */
 #include <SD.h>
+#include <SPI.h>
 
 File myFile;
 int readStatus = 0;
@@ -42,9 +45,9 @@ void setup()
   // (10 on most Arduino boards, 53 on the Mega) must be left as an output 
   // or the SD library functions will not work. Aleks used the Sparkfun micro
   //SD shield which uses pin 8 as CS
-  pinMode(8, OUTPUT);
+  pinMode(4, OUTPUT);
 
-  if (!SD.begin(8)) {
+  if (!SD.begin(4)) {
     Serial.println("initialization failed!");
     return;
   }
@@ -58,8 +61,8 @@ DDRC = DDRC | B00001111;    //set analog pins 0-3 as digital outputs
 void loop()
 {
   //if flie exists run the output loop
-  if (SD.exists("alice4.bin")) {
-    Serial.println("alice4.bin exists."); //tell us it worked
+  if (SD.exists("lana1.bin")) {
+    Serial.println("lana1.bin exists."); //tell us it worked
     byte toPort;
     File musicfile = SD.open("lana1.bin");  //open music file
     
@@ -73,6 +76,10 @@ void loop()
     musicfile.close();  //always close your file io
     }  //end of if exists block
   else {  //tell us if the file doesnt exist
-    Serial.println("alice3.bin doesn't exist.");
+    Serial.println("the file requested doesn't exist on the SD card.");
     }
+// sit in an endless loop because we dont want to hear this song forever
+while(1){
+}
+    
 }
